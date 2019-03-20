@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>video_play_demo</title>
+    <link rel="stylesheet" href="./css/index.css" />
+    <link rel="stylesheet" href="./css/video-js.min.css" />
+  </head>
+  <body>
+    <video
+      id="videobox"
+      controls
+      preload
+      class="video-js vjs-default-skin"
+    >
+      <source type="video/mp4" />
+    </video>
+    <h2 id="lefttimes"></h2>
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/mock.min.js"></script>
+    <script src="./js/video.min.js"></script>
+    <script>
+      var questionObj =[{
+          q: '大头儿子的父亲是谁',
+          s: ['小头爸爸', '隔壁老王', '大头爸爸'],
+          a: '隔壁老王'
+        }]
+      
+      Mock.mock("/api/s", {
+        'ques|1': questionObj,
+        'times|2-4': 0,
+        'src|1': "./media/movie.mp4"
+      });
+      
+      
+      $.ajax({
+        url: "/api/s",
+        type:'get',
+        dataType: "json",
+        success: function(res) {
+          console.log(res)
+          $('body').append('<h2>'+res.times+'s后答题'+'</h2>')
+          doplay(res)
+        }
+      });
+      
+      function doplay(res) {
+        var self = this;
+        var videoOptions = {
+          sources: [
+            {
+              src: res.src,
+              type: "video/mp4"
+            }
+          ],
+          //fluid: true,
+        };
+        var hasPause = false;
+        this.player = videojs("videobox", videoOptions);
+        this.player.on('ready', function(){
+          console.log("播放器准备好了!");
+        })
+        this.player.on("ended", function() {
+          console.log("播放结束了!");
+        });
+        this.player.on("pause", function() {
+            
+        });
+        this.player.on('timeupdate', function(e) {
+
+          if(res.times == parseInt(self.player.cache_.currentTime) && !hasPause){
+            hasPause = true;
+            var modalStr = `
+                      <h2>${res.ques.q}</h2>
+                      `;
+            res.ques.s.forEach(i=>{
+              modalStr += `<input type="radio" name="answer" id="${i}" onclick="getAnswer(${i}, ${res.ques.a})"/><label for="${i}">${i}</label><br/>`
+            })
+            
+            let contentEl = document.createElement("div");
+            contentEl.classList.add('questionbox')
+            contentEl.innerHTML = modalStr;
+            
+            self.modal = self.player.createModal(contentEl, { uncloseable: true });
+
+            self.modal.on("modalclose", function() {
+              self.player.play();
+            });
+
+            self.player.pause()
+          }
+          
+        })
+        this.getAnswer = function(i, answer) {
+          if(answer == i) {
+            alert('正确')
+            this.player.play();
+            this.modal.close()
+          }else{
+            alert('错误,继续选择')
+          }
+        }
+      }
+      
+    </script>
+  </body>
+</html>
