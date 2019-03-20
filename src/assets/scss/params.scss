@@ -1,0 +1,36 @@
+
+$themeC: #409EFF;
+$textGray: #969696;
+$textGray2: #999;
+$bgGray: #eee;
+$borderC: 1px solid #f0f0f0;
+$borderR: 5px;
+@mixin pr {
+  position: relative;
+}
+@mixin pa($t, $l) {
+  position: absolute;
+  top: $t;
+  left: $l;
+}
+@mixin pf($t, $l) {
+  position: fixed;
+  top: $t;
+  left: $l;
+}
+@mixin flex($a, $b, $d) {
+  display:flex;
+  align-items: $a;
+  justify-content: $b;
+  flex-direction: $d
+}
+
+@mixin textoverflow($line, $height){
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: $line;
+  width: 100%;
+  line-height:$height;
+}
