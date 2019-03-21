@@ -1,27 +1,36 @@
 <template>
   <div class="login_container">
     <h2>xx管理系统</h2>
-    <Input v-model="id" placeholder="用户名" class="loginInput" clearable/>
-    <Input v-model="psw" placeholder="密码" class="loginInput" show-password/>
-    <Button type="primary" class="loginIn">登录</Button>
+    <el-input v-model="id" placeholder="用户名" class="loginInput" clearable/>
+    <el-input v-model="psw" placeholder="密码" class="loginInput" show-password/>
+    <el-button type="primary" class="loginIn" @click="loginIn()">登录</el-button>
   </div>
 </template>
 
 <script>
-import { Input, Button } from "element-ui";
-
+import * as Cookies from "js-cookie";
 export default {
-  components: {
-    Input,
-    Button
-  },
-  name: "HelloWorld",
+
+  name: "login",
   data() {
     return {
       id: "admin",
       psw: "123"
     };
-  }
+  },
+  mounted() {
+    console.log(Cookies.get('session'))
+  },
+  methods: {
+    loginIn(){
+        var in30Minutes = 1/48;
+        Cookies.set('session', '123', {
+            expires: in30Minutes,
+            path:'',
+        });
+        this.$router.push({path:'/home', query:{}})
+    }
+  },
 };
 </script>
 
