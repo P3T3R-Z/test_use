@@ -9,6 +9,8 @@
 
 <script>
 import * as Cookies from "js-cookie";
+import mock from "../mock";
+import { request } from "@/utils/request.js";
 export default {
 
   name: "login",
@@ -19,16 +21,41 @@ export default {
     };
   },
   mounted() {
-    console.log(Cookies.get('session'))
   },
   methods: {
     loginIn(){
-        var in30Minutes = 1/48;
-        Cookies.set('session', '123', {
-            expires: in30Minutes,
-            path:'',
-        });
-        this.$router.push({path:'/home', query:{}})
+        request('/api/login', {'id': this.id, 'psw': this.psw})
+        .then(res=>{
+          if(res.status == 1) {
+            this.successInfo(res.data.class+':'+res.data.id, res.msg)
+            var in30Minutes = 1/48;
+            Cookies.set('session_id', res.data.session_id, {
+                expires: in30Minutes
+            });
+            Cookies.set('user_level', res.data.level, {
+                expires: in30Minutes
+            });
+            this.$router.push({path:'/', query:{}})
+          }else {
+            this.errinfo('error', res.msg)
+          }
+        }).catch(err=>{
+          console.log(err)
+        })
+    },
+    successInfo(title, msg) {
+      this.$notify({
+        title: title,
+        message: msg,
+        type: 'success'
+      });
+    },
+    errinfo(title, msg) {
+      this.$notify({
+        title: title,
+        message: msg,
+        type: 'warning'
+      });
     }
   },
 };

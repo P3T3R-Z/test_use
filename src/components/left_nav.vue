@@ -8,11 +8,11 @@
       :collapse="false"
       @select="select"
     >
-      <el-submenu :index="i.name" v-for="i in navlist" :key="i.id">
+      <el-submenu :index="i.name" v-for="i in navlist" :key="i.id" :disabled=" parseInt(userLevel) < i.level">
         <template slot="title">
           <span slot="title">{{i.name}}</span>
         </template>
-        <div v-for="x in i.child" :key="x.id">
+        <div v-for="x in i.child" :key="x.id" >
             <el-submenu :index="x.id" v-if="x.child">
             <span slot="title">{{x.name}}</span>
             <el-menu-item :index="y.name" v-for="y in x.child" :key="y.id">{{y.name}}</el-menu-item>
@@ -20,7 +20,7 @@
             <el-menu-item :index="x.name" v-else>{{x.name}}</el-menu-item>
         </div>
       </el-submenu>
-          <el-button type="danger" class="logout">退出登录</el-button>
+          <el-button type="danger" class="logout" @click="logOut">退出登录</el-button>
 
     </el-menu>
   </div>
@@ -28,23 +28,25 @@
 <script>
 import mock from "../mock";
 import { request } from "@/utils/request.js";
+import * as Cookies from "js-cookie";
 export default {
   data() {
     return {
-      navlist: null
+      navlist: null,
+      userLevel: Cookies.get('user_level')
     };
   },
   computed: {
-
+    
   },
   mounted() {
     request("/api/nav")
       .then(res => {
         this.navlist = res.nav;
+        console.log(this.navlist)
         this.$store.commit('getNavChoose', {index: res.nav[0].name})
-        console.log('模拟数据--->', this.navlist);
       })
-      .then(err => {
+      .catch(err => {
         console.log(err);
       });
     
@@ -59,6 +61,22 @@ export default {
     select(index, indexPath){
       //console.log(index, indexPath)
       this.$store.commit('getNavChoose', {index})
+    },
+    logOut(){
+      request('/api/logout')
+      .then(res=>{
+        if(res.status == 1){
+          this.$router.push({path:'/login', query:{}})
+          this.$notify({
+            title: '退出成功',
+            message: '',
+            type: 'success'
+          });
+        }
+      })
+      .catch(err=>{
+        console.log(err)
+      })
     }
   }
 };

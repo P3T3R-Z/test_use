@@ -7,6 +7,8 @@
 <script>
 import left_nav from './left_nav';
 import right_view from './right_view';
+import * as Cookies from "js-cookie";
+
 export default {
 	components:{
 		leftNav: left_nav,
@@ -15,17 +17,23 @@ export default {
   data() {
     return {};
   },
-  mounted() {
-		this.open10()
-	},
-  methods: {
-    open10() {
+	created() {
+		if(!Cookies.get('session_id')) {
+			this.$router.push({path:'/login'})
+			
+		} else {
 			this.$notify({
 				title: '提示!',
 				message: '步骤操作在:售后管理->配送进度',
 				position: 'top-left'
 			});
 		}
+	},
+  mounted() {
+		
+	},
+  methods: {
+
   }
 };
 </script>
